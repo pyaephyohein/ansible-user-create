@@ -1,0 +1,28 @@
+---
+- name: Add local user
+  become: true
+  user:
+    name: "{{ user.name }}"
+    password: "{{user.password}}"
+    group: root
+    shell: /bin/bash
+    home: /home/{{ user.name }}
+    create_home: yes
+    state: present
+- name: Add "{{ user.name }}" to sudoers file
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    regexp: "^s{{ user.name }}"
+    line: "{{ user.name }} ALL=(ALL) NOPASSWD: ALL"
+    validate: 'visudo -cf %s'
+
+- name: Add SSH public key for "{{ user.name }}"
+  become: yes
+  become_user: root
+  authorized_key:
+    user: "{{ user.name }}"
+    key: "{{item }}"
+    state: present
+  loop:
+    - "{{ lookup('file', './host_ssh/id_rsa.pub') }}"
