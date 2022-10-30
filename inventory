@@ -1,4 +1,4 @@
-[staging]
+[all]
 
 hostname = ansible-test ansible_ssh_host = 192.168.8.101  ansible_user = pph
 
